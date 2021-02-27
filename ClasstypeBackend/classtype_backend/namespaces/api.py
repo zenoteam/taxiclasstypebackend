@@ -95,6 +95,16 @@ filter_parser.add_argument('search',
                            type=str,
                            required=False,
                            help='class type name')
+filter_parser.add_argument('skip',
+                           type=str,
+                           location='args',
+                           required=False,
+                           help='The number of entries to skip')
+filter_parser.add_argument('limit',
+                           type=str,
+                           required=False,
+                           location='args',
+                           help='The limit per query')
 
 
 @api.route('/classTypes/')
@@ -115,7 +125,9 @@ class ClasstypeList(Resource):
             param = f'%{search_param}%'
             query = (query.filter(ClasstypeModel.class_name.ilike(param)))
 
-        query = query.order_by('id')
+        skip = args["skip"] or 0
+        limit = args["limit"] or 100
+        query = query.order_by('id').offset(skip).limit(limit)
         classTypes = query.all()
 
         return classTypes
