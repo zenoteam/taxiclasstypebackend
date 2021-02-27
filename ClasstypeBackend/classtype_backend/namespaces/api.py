@@ -91,14 +91,35 @@ monthQuery_parser.add_argument('year',
                                help='The year')
 
 filter_parser = authenticationParser.copy()
-monthQuery_parser.add_argument('search',
-                               type=str,
-                               required=True,
-                               help='The year')
+filter_parser.add_argument('search',
+                           type=str,
+                           required=False,
+                           help='class type name')
 
 
 @api.route('/classTypes/')
 class ClasstypeList(Resource):
+    @api.doc('list_classTypes')
+    @api.marshal_with(classTypesModel, as_list=True)
+    @api.expect(filter_parser)
+    def get(self):
+        """
+        Retrieve all classTypes
+        """
+        args = filter_parser.parse_args()
+        authentication_header_parser(args['Authorization'])
+
+        query = ClasstypeModel.query
+        if args['search']:
+            search_param = args['search']
+            param = f'%{search_param}%'
+            query = (query.filter(ClasstypeModel.class_name.ilike(param)))
+
+        query = query.order_by('id')
+        classTypes = query.all()
+
+        return classTypes
+
     @api.doc('create_classTypes')
     @api.expect(classTypesParser)
     def post(self):
