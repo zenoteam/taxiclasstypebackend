@@ -1,11 +1,10 @@
-version: "3"
+version: "3.7"
 
 services:
   # Development related
   test-sqlite:
     environment:
       - PYTHONDONTWRITEBYTECODE=1
-    env_file: environment2.env
     build:
       dockerfile: docker/app/Dockerfile
       context: .
@@ -26,24 +25,6 @@ services:
     volumes:
       - ./ClasstypeBackend:/opt/code
 
-  # Pipeline actions
-  test:
-    env_file: environment.env
-    environment:
-      - PYTHONDONTWRITEBYTECODE=1
-    build:
-      dockerfile: docker/app/Dockerfile
-      context: .
-    entrypoint: pytest
-    depends_on:
-      - db
-
-  static-analysis:
-    build:
-      dockerfile: docker/app/Dockerfile
-      context: .
-    entrypoint: flake8
-
   db:
     build:
       context: .
@@ -52,31 +33,14 @@ services:
         # These values should be in sync with environment
         # for development. If you change them, you'll
         # need to rebuild the container
-        - POSTGRES_DB=classtype
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=somepassword
-        - POSTGRES_PORT=5432
-    volumes:
-      - db-data:/opt/data 
-
-  # Producion related
-  # Note that db-debug is the same as db, but it exposes locally
-  # port 5432 to access PostgreSQL
-  db-debug:
-    build:
-      context: .
-      dockerfile: ./docker/db/Dockerfile
-      args:
-        # These values should be in sync with environment
-        # for development. If you change them, you'll
-        # need to rebuild the container
-        - POSTGRES_DB=classtype
+        - POSTGRES_DB=country
         - POSTGRES_USER=postgres
         - POSTGRES_PASSWORD=somepassword
         - POSTGRES_PORT=5432
     ports:
-      - "5462:5432"
+      - "5432:5432"
 
+  # Producion related
   server:
     env_file: environment.env
     image: classtype_server
@@ -84,9 +48,6 @@ services:
       context: .
       dockerfile: docker/app/Dockerfile
     ports:
-      - "7090:8000"
+      - "8000:8000"
     depends_on:
       - db
-
-volumes:
-  db-data:

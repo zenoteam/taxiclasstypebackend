@@ -2,6 +2,25 @@ import os
 from pathlib import Path
 from flask_sqlalchemy import SQLAlchemy
 
+from dotenv import load_dotenv
+
+work_path = Path.cwd()
+
+print(work_path)
+
+env_path = work_path / 'environment.env'
+
+load_dotenv(env_path)
+
+db_params = {
+        'host': os.environ['POSTGRES_HOST'],
+        'database': os.environ['POSTGRES_DB'],
+        'user': os.environ['POSTGRES_USER'],
+        'pwd': os.environ['POSTGRES_PASSWORD'],
+        'port': os.environ['POSTGRES_PORT'],
+    }
+print(db_params)
+
 DATABASE_ENGINE = os.environ.get('DATABASE_ENGINE', 'SQLITE')
 
 if DATABASE_ENGINE == 'SQLITE':
